@@ -787,18 +787,14 @@
       audio.addEventListener('timeupdate', function() {
         currentTimeEl.textContent = formatTime(audio.currentTime);
         if (audio.duration) {
-          var pct = (audio.currentTime / audio.duration) * 100;
-          progressBar.style.width = pct + '%';
+          progressBar.style.width = (audio.currentTime / audio.duration) * 100 + '%';
         }
       });
 
       progressWrap.addEventListener('click', function(e) {
         var rect = progressWrap.getBoundingClientRect();
-        var x = e.clientX - rect.left;
-        var pct = x / rect.width;
-        if (audio.duration) {
-          audio.currentTime = pct * audio.duration;
-        }
+        var pct = (e.clientX - rect.left) / rect.width;
+        if (audio.duration) audio.currentTime = pct * audio.duration;
       });
 
       audio.addEventListener('error', function() {
@@ -806,60 +802,47 @@
         totalTimeEl.textContent = '0:00';
       });
 
-      setTimeout(function() {
-        audio.muted = false;
-      }, 200);
-
-      var started = false;
-      function ensurePlay() {
-        if (started) return;
-        started = true;
+      function start() {
         audio.muted = false;
         audio.play().catch(function() {});
       }
 
-      document.addEventListener('click', ensurePlay, { once: true });
-      document.addEventListener('touchstart', ensurePlay, { once: true });
-      document.addEventListener('mousemove', ensurePlay, { once: true });
+      setTimeout(function() { audio.muted = false; }, 200);
+
+      setTimeout(function() {
+        if (!audio.paused) return;
+        var events = ['click', 'touchstart', 'pointerdown', 'keydown'];
+        function firstInteraction() {
+          for (var i = 0; i < events.length; i++) {
+            document.removeEventListener(events[i], firstInteraction, true);
+          }
+          start();
+        }
+        for (var i = 0; i < events.length; i++) {
+          document.addEventListener(events[i], firstInteraction, true);
+        }
+      }, 500);
 
       document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) {
-          audio.play();
-        }
+        if (!document.hidden && audio.paused) audio.play().catch(function(){});
       });
 
       var btnPlay = document.getElementById('btnPlay');
       var playIcon = document.getElementById('playIcon');
       var pauseIcon = document.getElementById('pauseIcon');
 
-      function showPlay() {
-        playIcon.style.display = 'block';
-        pauseIcon.style.display = 'none';
-      }
-
-      function showPause() {
-        playIcon.style.display = 'none';
-        pauseIcon.style.display = 'block';
-      }
+      function showPlay() { playIcon.style.display = 'block'; pauseIcon.style.display = 'none'; }
+      function showPause() { playIcon.style.display = 'none'; pauseIcon.style.display = 'block'; }
 
       btnPlay.addEventListener('click', function() {
-        if (audio.paused) {
-          audio.play().catch(function(){});
-          showPause();
-        } else {
-          audio.pause();
-          showPlay();
-        }
+        if (audio.paused) { audio.play().catch(function(){}); showPause(); }
+        else { audio.pause(); showPlay(); }
       });
 
       audio.addEventListener('play', showPause);
       audio.addEventListener('pause', showPlay);
 
-      setTimeout(function() {
-        if (!audio.paused) {
-          showPause();
-        }
-      }, 500);
+      setTimeout(function() { if (!audio.paused) showPause(); }, 600);
     })();
 
     (function() {
