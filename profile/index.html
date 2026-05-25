@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0a;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .cursor-glow {
+      position: fixed;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.25) 0%, rgba(34, 197, 94, 0.08) 40%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.3s ease;
+      will-change: left, top;
+    }
+
+    #particles-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .glow-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+      animation: orbFloat 8s ease-in-out infinite alternate;
+    }
+
+    .glow-orb-1 {
+      width: 400px;
+      height: 400px;
+      background: rgba(34, 197, 94, 0.12);
+      top: -100px;
+      right: -100px;
+    }
+
+    .glow-orb-2 {
+      width: 350px;
+      height: 350px;
+      background: rgba(34, 197, 94, 0.08);
+      bottom: -80px;
+      left: -80px;
+      animation-delay: 4s;
+    }
+
+    @keyframes orbFloat {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(60px, 40px) scale(1.15); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px 20px;
+      margin-top: -30px;
+      opacity: 0;
+      animation: fadeIn 1.2s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      margin-bottom: 40px;
+    }
+
+    .avatar-ring {
+      position: absolute;
+      top: -16px;
+      left: -16px;
+      width: calc(100% + 32px);
+      height: calc(100% + 32px);
+      border-radius: 50%;
+      background: conic-gradient(#22c55e, #166534, #22c55e, #14532d, #22c55e);
+      animation: ringSpin 4s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes ringSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .avatar-glow {
+      position: absolute;
+      top: -40px;
+      left: -40px;
+      width: calc(100% + 80px);
+      height: calc(100% + 80px);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.3) 0%, transparent 70%);
+      animation: pulseGlow 1.5s ease-in-out infinite;
+      z-index: -2;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(0.95); opacity: 0.5; }
+      14% { transform: scale(1.15); opacity: 1; }
+      28% { transform: scale(0.95); opacity: 0.5; }
+      42% { transform: scale(1.1); opacity: 0.8; }
+      56% { transform: scale(0.95); opacity: 0.5; }
+    }
+
+    .avatar {
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(34, 197, 94, 0.5);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      display: block;
+      position: relative;
+      animation: heartbeat 1.5s ease-in-out infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      14% { transform: scale(1.08); }
+      28% { transform: scale(1); }
+      42% { transform: scale(1.06); }
+      56% { transform: scale(1); }
+    }
+
+    .avatar:hover {
+      animation: none;
+      transform: scale(1.08);
+      box-shadow: 0 0 80px rgba(34, 197, 94, 0.5);
+    }
+
+    .player-wrap {
+      perspective: 1200px;
+      width: 100%;
+      max-width: 780px;
+      animation: fadeIn 1.2s ease 0.3s both;
+    }
+
+    .player {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(34, 197, 94, 0.15);
+      border-radius: 24px;
+      padding: 26px 32px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 60px rgba(34, 197, 94, 0.05);
+      transition: transform 0.15s ease, box-shadow 0.3s ease;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .player:hover {
+      box-shadow: 0 12px 50px rgba(0, 0, 0, 0.6), 0 0 80px rgba(34, 197, 94, 0.08);
+    }
+
+    .btn-play {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      background: rgba(34, 197, 94, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-play:hover {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: rgba(34, 197, 94, 0.6);
+      transform: scale(1.1);
+      box-shadow: 0 0 30px rgba(34, 197, 94, 0.2);
+    }
+
+    .btn-play svg {
+      width: 18px;
+      height: 18px;
+      fill: #22c55e;
+      display: block;
+    }
+
+    .disc {
+      flex-shrink: 0;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .disc img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      animation: spinDisc 6s linear infinite;
+      border: 2px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .disc::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #0a0a0a;
+      border: none;
+      z-index: 2;
+    }
+
+    @keyframes spinDisc {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .player-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .player-info .song {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .player-info .artist {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 4px;
+    }
+
+    .player-right {
+      flex-shrink: 0;
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .time {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.5);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.3px;
+    }
+
+    .progress-wrap {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #22c55e, #4ade80);
+      border-radius: 4px;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+      position: relative;
+    }
+
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      right: -4px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 10px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.7);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .progress-wrap:hover .progress-bar::after {
+      opacity: 1;
+    }
+
+    .socials {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 36px;
+      animation: fadeIn 1.2s ease 0.5s both;
+    }
+
+    .socials a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      text-decoration: none;
+      transition: all 0.35s ease;
+      position: relative;
+    }
+
+    .socials a svg {
+      width: 22px;
+      height: 22px;
+      fill: #fff;
+      transition: fill 0.35s ease;
+    }
+
+    .socials a:hover {
+      transform: translateY(-5px) scale(1.12);
+      border-color: rgba(34, 197, 94, 0.6);
+      box-shadow: 0 8px 30px rgba(34, 197, 94, 0.25);
+    }
+
+    .socials a:hover svg {
+      fill: #22c55e;
+    }
+
+    .btn-shop {
+      margin-top: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 18px 80px;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      border-radius: 14px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.35s ease;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+      animation: fadeIn 1.2s ease 0.6s both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-arrow {
+      transition: transform 0.35s ease;
+    }
+
+    .btn-shop:hover .btn-arrow {
+      transform: translateX(10px);
+    }
+
+    .btn-shop::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(34, 197, 94, 0.05));
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      border-radius: 14px;
+    }
+
+    .btn-shop::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.6), transparent, rgba(34, 197, 94, 0.3));
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    .btn-shop:hover {
+      transform: translateY(-4px) scale(1.2);
+      border-color: rgba(34, 197, 94, 0.7);
+      color: #b8f5c4;
+      box-shadow: 0 12px 50px rgba(0, 0, 0, 0.5), 0 0 80px rgba(34, 197, 94, 0.35), 0 0 120px rgba(34, 197, 94, 0.15);
+    }
+
+    .btn-shop:hover::before {
+      opacity: 1;
+    }
+
+    .btn-shop:hover::after {
+      opacity: 1;
+    }
+
+    .btn-shop:active {
+      transform: translateY(-2px) scale(0.98);
+    }
+
+    .shop-wrap {
+      perspective: 800px;
+      margin-top: 48px;
+      animation: fadeIn 1.2s ease 0.6s both;
+    }
+
+    .shop-wrap .btn-shop {
+      margin-top: 0;
+      animation: none;
+    }
+
+    @media (max-width: 768px) {
+      .avatar {
+        width: 175px;
+        height: 175px;
+      }
+
+      .player {
+        flex-wrap: wrap;
+        padding: 20px 22px;
+        gap: 14px;
+        border-radius: 20px;
+      }
+
+      .player-right {
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+      }
+
+      .progress-wrap {
+        flex: 1;
+      }
+
+      .disc {
+        width: 58px;
+        height: 58px;
+      }
+
+      .btn-play {
+        width: 38px;
+        height: 38px;
+      }
+
+      .btn-play svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      .player-info .song {
+        font-size: 16px;
+      }
+
+      .player-info .artist {
+        font-size: 13px;
+      }
+
+      .btn-shop {
+        padding: 16px 50px;
+        font-size: 13px;
+        letter-spacing: 2px;
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+      }
+
+      .socials {
+        gap: 14px;
+        margin-top: 28px;
+      }
+
+      .socials a {
+        width: 46px;
+        height: 46px;
+      }
+
+      .socials a svg {
+        width: 19px;
+        height: 19px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .avatar {
+        width: 135px;
+        height: 135px;
+      }
+
+      .player {
+        padding: 16px;
+        gap: 12px;
+        border-radius: 16px;
+      }
+
+      .disc {
+        width: 48px;
+        height: 48px;
+      }
+
+      .btn-play {
+        width: 34px;
+        height: 34px;
+      }
+
+      .btn-play svg {
+        width: 13px;
+        height: 13px;
+      }
+
+      .player-info .song {
+        font-size: 14px;
+      }
+
+      .player-info .artist {
+        font-size: 12px;
+      }
+
+      .btn-shop {
+        padding: 14px 32px;
+        font-size: 12px;
+        margin-top: 36px;
+      }
+
+      .socials {
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .socials a {
+        width: 40px;
+        height: 40px;
+      }
+
+      .socials a svg {
+        width: 17px;
+        height: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor-glow" id="cursorGlow"></div>
+  <canvas id="particles-canvas"></canvas>
+
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+
+  <audio id="bgAudio" src="Exit Sign.mp3" loop muted autoplay style="display:none"></audio>
+
+  <div class="container">
+    <div class="avatar-wrapper">
+      <div class="avatar-glow"></div>
+      <div class="avatar-ring"></div>
+      <img
+        class="avatar"
+        src="mkhaidz.jpg"
+        alt="avatar"
+      >
+    </div>
+
+    <div class="player-wrap" id="playerWrap">
+      <div class="player" id="player">
+        <div class="disc">
+          <img
+            src="https://images.genius.com/a7c69b14897ffc5feb3febaa21f945c3.1000x1000x1.jpg"
+            alt="cover"
+          >
+        </div>
+        <div class="btn-play" id="btnPlay" aria-label="Play/Pause">
+          <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="pauseIcon" viewBox="0 0 24 24" style="display:none"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>
+        </div>
+        <div class="player-info">
+          <div class="song">Exit Sign</div>
+          <div class="artist">HIEUTHUHAI</div>
+        </div>
+        <div class="player-right">
+          <div class="time">
+            <span id="current-time">0:00</span>
+            /
+            <span id="total-time">0:00</span>
+          </div>
+          <div class="progress-wrap" id="progress-wrap">
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="socials">
+      <a href="https://www.facebook.com/minhkhaidepzai" target="_blank" aria-label="Facebook">
+        <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      </a>
+      <a href="https://www.tiktok.com/@mnhkhdz" target="_blank" aria-label="TikTok">
+        <svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+      </a>
+      <a href="https://www.instagram.com/mnhkhdzz" target="_blank" aria-label="Instagram">
+        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+      </a>
+      <a href="https://discord.com/users/1131578305250861137" target="_blank" aria-label="Discord">
+        <svg viewBox="0 0 24 24"><path d="M20.317 4.369a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+      </a>
+      <a href="https://t.me" target="_blank" aria-label="Telegram">
+        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+      </a>
+    </div>
+
+    <div class="shop-wrap">
+      <a class="btn-shop" id="shopBtn" href="shop.html">
+        EXPLORE
+        <svg class="btn-arrow" viewBox="0 0 24 24" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var canvas = document.getElementById('particles-canvas');
+      var ctx = canvas.getContext('2d');
+      var cursorGlow = document.getElementById('cursorGlow');
+      var particles = [];
+      var mouse = { x: null, y: null };
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      document.addEventListener('mousemove', function(e) {
+        cursorGlow.style.left = e.clientX + 'px';
+        cursorGlow.style.top = e.clientY + 'px';
+      });
+
+      document.addEventListener('mousemove', function(e) {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      });
+
+      document.addEventListener('mouseleave', function() {
+        mouse.x = null;
+        mouse.y = null;
+      });
+
+      var PARTICLE_COUNT = 80;
+      for (var i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.6,
+          vy: (Math.random() - 0.5) * 0.6,
+          size: Math.random() * 2.5 + 1,
+          alpha: Math.random() * 0.5 + 0.15
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (var i = 0; i < particles.length; i++) {
+          var p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0) p.x = canvas.width;
+          if (p.x > canvas.width) p.x = 0;
+          if (p.y < 0) p.y = canvas.height;
+          if (p.y > canvas.height) p.y = 0;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(34, 197, 94, ' + p.alpha + ')';
+          ctx.fill();
+        }
+
+        for (var i = 0; i < particles.length; i++) {
+          for (var j = i + 1; j < particles.length; j++) {
+            var dx = particles[i].x - particles[j].x;
+            var dy = particles[i].y - particles[j].y;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 140) {
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.strokeStyle = 'rgba(34, 197, 94, ' + (0.08 * (1 - dist / 140)) + ')';
+              ctx.lineWidth = 0.6;
+              ctx.stroke();
+            }
+          }
+        }
+
+        if (mouse.x !== null && mouse.y !== null) {
+          for (var i = 0; i < particles.length; i++) {
+            var dx = mouse.x - particles[i].x;
+            var dy = mouse.y - particles[i].y;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 180) {
+              ctx.beginPath();
+              ctx.moveTo(mouse.x, mouse.y);
+              ctx.lineTo(particles[i].x, particles[i].y);
+              ctx.strokeStyle = 'rgba(34, 197, 94, ' + (0.12 * (1 - dist / 180)) + ')';
+              ctx.lineWidth = 0.8;
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    (function() {
+      var audio = document.getElementById('bgAudio');
+
+      var currentTimeEl = document.getElementById('current-time');
+      var totalTimeEl = document.getElementById('total-time');
+      var progressBar = document.getElementById('progress-bar');
+      var progressWrap = document.getElementById('progress-wrap');
+
+      function formatTime(t) {
+        if (isNaN(t) || !isFinite(t)) return '0:00';
+        var m = Math.floor(t / 60);
+        var s = Math.floor(t % 60);
+        return m + ':' + (s < 10 ? '0' : '') + s;
+      }
+
+      audio.addEventListener('loadedmetadata', function() {
+        totalTimeEl.textContent = formatTime(audio.duration);
+      });
+
+      audio.addEventListener('timeupdate', function() {
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+        if (audio.duration) {
+          var pct = (audio.currentTime / audio.duration) * 100;
+          progressBar.style.width = pct + '%';
+        }
+      });
+
+      progressWrap.addEventListener('click', function(e) {
+        var rect = progressWrap.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var pct = x / rect.width;
+        if (audio.duration) {
+          audio.currentTime = pct * audio.duration;
+        }
+      });
+
+      audio.addEventListener('error', function() {
+        currentTimeEl.textContent = '0:00';
+        totalTimeEl.textContent = '0:00';
+      });
+
+      setTimeout(function() {
+        audio.muted = false;
+      }, 200);
+
+      var started = false;
+      function ensurePlay() {
+        if (started) return;
+        started = true;
+        audio.muted = false;
+        audio.play().catch(function() {});
+      }
+
+      document.addEventListener('click', ensurePlay, { once: true });
+      document.addEventListener('touchstart', ensurePlay, { once: true });
+      document.addEventListener('mousemove', ensurePlay, { once: true });
+
+      document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+          audio.play();
+        }
+      });
+
+      var btnPlay = document.getElementById('btnPlay');
+      var playIcon = document.getElementById('playIcon');
+      var pauseIcon = document.getElementById('pauseIcon');
+
+      function showPlay() {
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+      }
+
+      function showPause() {
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'block';
+      }
+
+      btnPlay.addEventListener('click', function() {
+        if (audio.paused) {
+          audio.play().catch(function(){});
+          showPause();
+        } else {
+          audio.pause();
+          showPlay();
+        }
+      });
+
+      audio.addEventListener('play', showPause);
+      audio.addEventListener('pause', showPlay);
+
+      setTimeout(function() {
+        if (!audio.paused) {
+          showPause();
+        }
+      }, 500);
+    })();
+
+    (function() {
+      var wrap = document.getElementById('playerWrap');
+      var player = document.getElementById('player');
+      if (!wrap || !player) return;
+
+      wrap.addEventListener('mousemove', function(e) {
+        var rect = wrap.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var y = e.clientY - rect.top;
+        var cx = rect.width / 2;
+        var cy = rect.height / 2;
+        var dx = (x - cx) / cx;
+        var dy = (y - cy) / cy;
+        var rx = -dy * 25;
+        var ry = dx * 25;
+        player.style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
+      });
+
+      wrap.addEventListener('mouseleave', function() {
+        player.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      });
+    })();
+
+    (function() {
+      var btn = document.getElementById('shopBtn');
+      if (!btn) return;
+      var parent = btn.parentNode;
+
+      parent.addEventListener('mousemove', function(e) {
+        var rect = parent.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var y = e.clientY - rect.top;
+        var cx = rect.width / 2;
+        var cy = rect.height / 2;
+        var dx = (x - cx) / cx;
+        var dy = (y - cy) / cy;
+        btn.style.transform = 'translateY(-4px) scale(1.2) rotateX(' + (-dy * 8) + 'deg) rotateY(' + (dx * 8) + 'deg)';
+      });
+
+      parent.addEventListener('mouseleave', function() {
+        btn.style.transform = '';
+      });
+    })();
+  </script>
+</body>
+</html>
